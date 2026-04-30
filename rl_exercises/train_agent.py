@@ -61,7 +61,9 @@ def train(cfg: DictConfig) -> float:
         agent = RandomAgent(env)
     else:
         # TODO: add your agent options here
-        raise NotImplementedError
+        mars = MarsRover()
+        agent = PolicyIteration(mars)
+        # raise NotImplementedError
 
     buffer_cls = eval(cfg.buffer_cls)
     buffer = buffer_cls(**cfg.buffer_kwargs)

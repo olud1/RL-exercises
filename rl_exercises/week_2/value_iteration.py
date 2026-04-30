@@ -65,13 +65,13 @@ class ValueIteration(AbstractAgent):
             return
 
         # TODO: Call value_iteration() with the MDP components
-        V_opt, pi_opt = None, None  # placeholder
+        V_opt, pi_opt = value_iteration(self.T, self.R_sa, self.gamma, self.seed)  # placeholder
 
         self.V = V_opt
         self.pi = pi_opt
         printr("Converged V:", self.V)
         printr("Derived policy π:", self.pi)
-        # self.policy_fitted = True # TODO: uncomment this after implementation
+        self.policy_fitted = True # TODO: uncomment this after implementation
 
     def predict_action(
         self,
@@ -84,7 +84,7 @@ class ValueIteration(AbstractAgent):
             self.update_agent()
 
         # TODO: Return action from learned policy
-        raise NotImplementedError("predict_action() is not implemented.")
+        return (self.pi[observation], {})
 
 
 def value_iteration(
@@ -124,11 +124,27 @@ def value_iteration(
     """
     n_states, n_actions = R_sa.shape
     V = np.zeros(n_states, dtype=float)
-    # rng = np.random.default_rng(seed)  uncomment this
-    pi = None
+    rng = np.random.default_rng(seed)
 
+    # V*(s) = max_a [ R_sa[s,a] + γ ∑_{s'} T[s,a,s'] V*(s') ]
     # TODO: update V using the Q values until convergence
+    delta_v = 0
+    while delta_v > epsilon:
+        delta_v = 0
+        for state in range(n_states):
+            old_val = V[state]
+            V[state] = np.max([R_sa[state, action] + gamma * np.sum([T[state, action, s] * V[s] for s in range(n_states)]) for action in range(n_actions)])
+            delta = abs(old_val - V[state])
+            if delta > delta_v: delta_v = delta 
 
+    # π*(s) = argmax_a [ R_sa[s,a] + γ ∑_{s'} T[s,a,s'] V*(s') ]
     # TODO: Extract the greedy policy from V and update pi
-
+    pi = np.zeros(n_states)
+    for state in range(n_states):
+        Q_s = np.zeros(n_actions)
+        for action in range(n_actions):
+            Q_s[action] = R_sa[state, action] + gamma * np.sum([T[state, action, s] * V[s] for s in range(n_states)])
+        maxima = np.where(Q_s == Q_s.max())
+        pi[state] = rng.choice(maxima)
+    
     return V, pi
