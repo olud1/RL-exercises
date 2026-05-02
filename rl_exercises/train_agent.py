@@ -22,9 +22,9 @@ from rl_exercises.agent.buffer import SimpleBuffer
 from rl_exercises.environments import MarsRover
 from rl_exercises.week_2.policy_iteration import PolicyIteration
 from rl_exercises.week_2.value_iteration import ValueIteration
+from rl_exercises.week_3 import EpsilonGreedyPolicy as TabularEpsilonGreedyPolicy
+from rl_exercises.week_3 import TDAgent
 
-# from rl_exercises.week_4 import EpsilonGreedyPolicy as TabularEpsilonGreedyPolicy
-# from rl_exercises.week_4 import SARSAAgent
 # from rl_exercises.week_5 import EpsilonGreedyPolicy, TabularQAgent, VFAQAgent
 # from rl_exercises.week_6 import DQN, ReplayBuffer
 # from rl_exercises.week_7 import REINFORCE
@@ -59,6 +59,9 @@ def train(cfg: DictConfig) -> float:
         return train_sb3(env, cfg)
     elif cfg.agent == "random":
         agent = RandomAgent(env)
+    elif cfg.agent == "sarsa":
+        egp = TabularEpsilonGreedyPolicy(env, cfg.epsilon, cfg.seed)
+        agent = TDAgent(env, egp)
     else:
         # TODO: add your agent options here
         mars = MarsRover()
